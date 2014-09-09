@@ -8,8 +8,12 @@
 
 using namespace std;
 
-
-
+/*
+ * get server address infomation from dns, the address is returned as
+ * a linked list, so try to connect each address. once success, free
+ * the list, set the timeout value of socket, return the connected 
+ * socket. if failed, we also need to free list, and return the error
+ */
 unsigned int TcpClient::connect_server(const char *host, const char *serv)
 {
 	if (m_connected)
@@ -65,6 +69,10 @@ unsigned int TcpClient::connect_server(const char *host, const char *serv)
 	return ret;	
 }
 
+/*
+ * do_connect() actually called connect(). we set a timeout value for connect()
+ * by set socket nonblocked, and reset to block after connecting.
+ */
 unsigned int TcpClient::do_connect(const struct sockaddr *servaddr, socklen_t addrlen)
 {
 	unsigned int   ret;
@@ -130,6 +138,9 @@ void TcpClient::set_timeout()
 		;
 }
 
+/*
+ * read n bytes from socket
+ */
 unsigned int TcpClient::readn(char *buffer, size_t n)
 {
 	char     *current = buffer;
@@ -152,6 +163,9 @@ unsigned int TcpClient::readn(char *buffer, size_t n)
 	return (n - left_bytes);   /* return >= 0 */
 }
 
+/*
+ * write n bytes to socket
+ */
 unsigned int TcpClient::writen(const char *buffer, size_t n)
 {
 	const char *current = buffer;
@@ -172,13 +186,18 @@ unsigned int TcpClient::writen(const char *buffer, size_t n)
 	return n;
 }
 
-
-
-
-
-
-
-
+/*
+ * if readn() or wirten() return -1, then we call check_errno()
+ * to check error type, if errno is EAGAIN or EWOULDBLOCK which
+ * means the operation is timeout, we can try it later.
+ */
+unsigned int TcpClient::check_errno()
+{
+	int err_num = errno;
+	if (err_num == EAGAIN || err_num == EWOULDBLOCK)
+		return INFATAL_ERROR;
+	return FATAL_ERROR;
+}
 
 
 
