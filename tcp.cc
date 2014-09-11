@@ -26,7 +26,7 @@ unsigned int TcpClient::connect_server(const char *host, const char *serv)
 		
 	int retval = getaddrinfo(host, serv, &m_hints, &result);
 	if (retval != 0) {
-		cout << "error code: " << retval << endl;
+//		cout << "error code: " << retval << endl;
 		if (retval == EAI_AGAIN)
 			return INFATAL_ERROR;
 		return FATAL_ERROR;
@@ -75,7 +75,6 @@ unsigned int TcpClient::connect_server(const char *host, const char *serv)
  */
 unsigned int TcpClient::do_connect(const struct sockaddr *servaddr, socklen_t addrlen)
 {
-	unsigned int   ret;
 	int            flag, error, retval;
 	socklen_t      len;
 	fd_set         read_set, write_set;
@@ -141,7 +140,7 @@ void TcpClient::set_timeout()
 /*
  * read n bytes from socket
  */
-unsigned int TcpClient::readn(char *buffer, size_t n)
+int TcpClient::readn(char *buffer, size_t n)
 {
 	char     *current = buffer;
 	size_t   left_bytes = n;
@@ -166,7 +165,7 @@ unsigned int TcpClient::readn(char *buffer, size_t n)
 /*
  * write n bytes to socket
  */
-unsigned int TcpClient::writen(const char *buffer, size_t n)
+int TcpClient::writen(const char *buffer, size_t n)
 {
 	const char *current = buffer;
 	int left_bytes = n;
@@ -187,6 +186,39 @@ unsigned int TcpClient::writen(const char *buffer, size_t n)
 }
 
 /*
+ * read a line from socket
+ */
+ int TcpClient::read_line(char *buffer)
+{
+	unsigned int read_bytes = 0;
+	int rc = 0;
+	char c;
+	
+	char *current = buffer;
+	
+	while (read_bytes < MAX_LINE) {
+		rc = read(m_sockfd, &c, 1);
+		if (rc == 1) {
+			*current++ = c;
+			++read_bytes;
+			if (c == '\n')
+				break;
+		}
+		else if (rc == 0) {
+			*current = 0;
+			return read_bytes;
+		}
+		else if (errno == EINTR)
+			continue;
+		else
+			return -1;
+	}
+	
+	*current = 0;
+	return read_bytes;
+}
+
+/*
  * if readn() or wirten() return -1, then we call check_errno()
  * to check error type, if errno is EAGAIN or EWOULDBLOCK which
  * means the operation is timeout, we can try it later.
@@ -198,6 +230,11 @@ unsigned int TcpClient::check_errno()
 		return INFATAL_ERROR;
 	return FATAL_ERROR;
 }
+
+
+
+
+
 
 
 
