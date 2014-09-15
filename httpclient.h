@@ -24,7 +24,7 @@ const unsigned int BUFF_ERROR    = 8;
 
 class HttpClient {
 public:
-	HttpClient(unsigned int timeout = TIMEOUT_SECONDS);
+	HttpClient();
 	
 	bool execute(HttpRequest &request, HttpResponse &response);
 

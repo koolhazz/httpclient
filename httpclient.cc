@@ -6,11 +6,10 @@ using namespace std;
 /*
  * constructor
  */
-HttpClient::HttpClient(unsigned int timeout)
+HttpClient::HttpClient()
 {
 	m_buffer = new char[BUF_SIZE];
 	
-	m_tcp.set_timeout_sec(timeout);
 	clear();
 }
 
@@ -41,7 +40,7 @@ bool HttpClient::execute(HttpRequest &request, HttpResponse &response)
 
 	if (!send_request(request))
 		return false;
-	
+			
 	if (!recv_response(response))
 		return false;
 		
@@ -62,13 +61,13 @@ bool HttpClient::send_request(HttpRequest &request)
 	unsigned int retval = m_tcp.connect_server(host.c_str(), port.c_str());
 	if (retval != SUCCESS) {
 		m_error = CONN_ERROR;
-		m_error_type = retval;
+		m_error_type = retval;		
 		return false;
 	}
 	
 	if (m_tcp.writen(request.m_request.c_str(), request.m_request.size()) == -1) {
 		m_error = SEND_ERROR;
-		m_error_type = m_tcp.check_errno();
+		m_error_type = m_tcp.check_errno();	
 		return false;
 	}
 	
@@ -84,7 +83,7 @@ bool HttpClient::recv_response(HttpResponse &response)
 		m_error_type = m_tcp.check_errno();
 		return false;
 	}
-	
+
 	if (parse_response(response)) {
 		if (!read_content(response))
 			return false;	
@@ -107,6 +106,8 @@ bool HttpClient::read_header(HttpResponse &response)
 	response.set_status_line(current);
 	current += read_bytes;
 	total_bytes += read_bytes;
+	
+
 	
 	while (1) {
 		read_bytes = m_tcp.read_line(current);

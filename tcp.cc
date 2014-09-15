@@ -4,6 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <errno.h>
+#include <cstring>    /* strerror() */
 #include <iostream>
 
 using namespace std;
@@ -173,10 +174,13 @@ int TcpClient::writen(const char *buffer, size_t n)
 	
 	while (left_bytes > 0) {
 		if ((write_bytes = write(m_sockfd, current, n)) <= 0) {
-			if (errno == EINTR && write_bytes < 0)
+			if (errno == EINTR && write_bytes < 0) 
 				write_bytes = 0;       /* interrupt by signal, call read() again */
-			else 
+			else {
+//				cout << write_bytes << endl;
+//				cout << strerror(errno) << endl;
 				return -1;            /* error */
+			}
 		}
 		left_bytes = n - write_bytes;
 		current += write_bytes;

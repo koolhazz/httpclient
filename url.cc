@@ -22,6 +22,7 @@ bool Url::valid_url()
 void Url::parse_url()
 {
  	/* get the scheme */
+ 	m_port = "80";
 	string::size_type scheme_end_index = m_url.find("://");
 	if (scheme_end_index == string::npos) {
 		m_scheme = HTTP;
@@ -30,7 +31,6 @@ void Url::parse_url()
 		string scheme = m_url.substr(0, scheme_end_index);
 		if (scheme == "http") {
 			m_scheme = HTTP;
-			m_port = "80";
 		}
 		else if (scheme == "https") {
 			m_scheme = HTTPS;
@@ -63,7 +63,7 @@ void Url::parse_url()
 	else 
 		m_path = no_scheme_url.substr(host_end_index);
 	
-	/* get port */
+	/* get port if url has spec port number */
 	string::size_type port_index = m_host.find(":");
 	if (port_index != string::npos)
 		m_port = m_host.substr(port_index+1);	

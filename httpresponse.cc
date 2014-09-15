@@ -30,8 +30,10 @@ void HttpResponse::set_status_line(char *buf)
 	
 	/* get status number */
 	cursor += 2;
-	while (*cursor >= '0' && *cursor <= '9')
+	while (*cursor >= '0' && *cursor <= '9') {
 		m_status = m_status * 10 + *cursor - '0';
+		cursor++;
+	}
 	
 	/* get reason phrase */
 	cursor++;

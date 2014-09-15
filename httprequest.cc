@@ -83,6 +83,8 @@ string HttpRequest::get_header(const char *name)
  		m_request.append(it->first);
  		m_request.append(it->second);
  	}
+ 	/* end flag */
+ 	m_request.append("\r\n");  
  	
  	/* body */
  	if (!m_body.empty())

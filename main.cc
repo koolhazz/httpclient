@@ -7,7 +7,7 @@
 
 using namespace std;
 
-/* test tcp client *
+/* test tcp client */
 char buffer[1024];
 void test_tcp()
 {
@@ -65,7 +65,7 @@ void test_http_request()
 void test_http_client()
 {
 	HttpClient hc;
-	HttpRequest req("localhost");
+	HttpRequest req("http://localhost/02.html");
 	HttpResponse res;
 	
 	req.print_all(cout);
